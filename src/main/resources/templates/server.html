@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link  rel="stylesheet" href="layui/css/layui.css">
+    <script type="text/javascript" src="layui/layui.js"></script>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <style>
+
+        .debuginfo{
+	        margin-top:20px;
+	        width:100%;
+	        height: 600px;
+	        border: 1px solid #eeeeee;
+	        overflow:auto;
+        }
+        .devicew{
+            margin-top:15px;
+        }
+        .client-list{
+	        margin-top:20px;
+	        width:100%;
+	        height: 638px;
+	        border: 1px solid #eeeeee;
+	        overflow:auto;
+        }
+    </style>
+</head>
+<body class="layui-bg-gray">
+<hr class="layui-bg-cyan">
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-btn layui-btn-primary layui-btn-fluid">server 设置</div>
+                    <div class="devicew">
+                        <div class="layui-input-inline">
+                            <input type="number" name="port" id="port" placeholder="请输入端口号" required lay-verify="required" class="layui-input" style="float: left;">
+                        </div>
+                        <div class="layui-input-inline devicew">
+                            <button class="layui-btn" onclick="startServer('start')">启动服务</button>
+                            <button class="layui-btn" onclick="startServer('stop')">停止服务</button>
+                            <button class="layui-btn layui-btn-danger" onclick="clearCache('server')">清除socket，缓存</button>
+                        </div>
+                    </div>
+
+                    <div class="layui-card-body">
+                        <button class="layui-btn layui-btn-primary layui-btn-fluid" id="refresh">刷新
+                            <span class="layui-badge" id="total">0</span>
+                            <span class="layui-badge layui-bg-blue" id="onlinenum">0</span>
+                            <span class="layui-badge layui-bg-gray" id="offlinenum">0</span>
+                        </button>
+                    </div>
+                    <div class="client-list" id="clientList"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-col-md6">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-btn layui-btn-primary layui-btn-fluid" id="socketStr">127.0.0.1</div>
+
+
+                <div class="devicew">
+                    <div class="layui-input-inline">
+                        <input type="text" name="command" id="command" placeholder="请输入指令" required lay-verify="required" class="layui-input" style="width:300px;float: left;">
+                    </div>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn" onclick="devicedebuging()">发送</button>
+                        <button class="layui-btn" onclick="devicedebuging('start')">定时发送</button>
+                        <button class="layui-btn" onclick="devicedebuging('stop')">停止定时发送</button>
+                        <button class="layui-btn layui-btn-primary" onclick="clearlog()">清空日志</button>
+
+                    </div>
+
+                </div>
+                <hr class="layui-bg-gray">
+                <div class="layui-input-inline devicew">
+                    <label>total:</label>
+                    <button class="layui-btn layui-btn-primary">发送次数<span class="layui-badge " id="total_sendNum">0</span></button>
+                    <button class="layui-btn layui-btn-primary">发送字节数量<span class="layui-badge " id="total_sendData">0</span></button>
+                    <button class="layui-btn layui-btn-primary">收到次数<span class="layui-badge " id="total_recNum">0</span></button>
+                    <button class="layui-btn layui-btn-primary">收到字节数量<span class="layui-badge " id="total_recData">0</span></button>
+                    <button class="layui-btn layui-btn-primary">收/发<span class="layui-badge " id="total_precentData">0</span></button>
+                </div>
+                <hr class="layui-bg-gray">
+                <div class="layui-input-inline devicew">
+                    <label>client:</label>
+                    <button class="layui-btn layui-btn-primary">发送次数<span class="layui-badge " id="sendNum">0</span></button>
+                    <button class="layui-btn layui-btn-primary">发送字节数量<span class="layui-badge " id="sendData">0</span></button>
+                    <button class="layui-btn layui-btn-primary">收到次数<span class="layui-badge " id="recNum">0</span></button>
+                    <button class="layui-btn layui-btn-primary">收到字节数量<span class="layui-badge " id="recData">0</span></button>
+                    <button class="layui-btn layui-btn-primary">收/发<span class="layui-badge " id="precentData">0</span></button>
+                </div>
+                <div name="debugfeed" id="feedinfo" class="debuginfo"  placeholder="设备调试反馈">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-btn layui-btn-primary layui-btn-fluid" id="devicedetail">查询设备详情</div>
+                <table id="failtable" class="layui-table" lay-filter="failtableInfo">
+                    <thead>
+                    <tr>
+                        <th lay-data="{field: 'type'}">状态</th>
+                        <th lay-data="{field: 'actionTime'}">发生时间</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<script type="text/javascript" src="js/server.js"></script>
+<script type="text/javascript">
+layui.use(['form','element','layer','table'],function(){
+    var element = layui.element;
+    var form = layui.form;
+    var layer = layui.layer;
+    var table = layui.table;
+
+    form.on('submit(formClient)', function(data){
+        var c= data.field;
+        $.ajax({
+            url:"createClient",
+            method:"post",
+            data:c,
+            dataType:"json",
+            success:function(data){
+                if(data.errorCode==="SUCCESS"){
+                    layer.alert("创建成功");
+                }else{
+                    layer.alert(data.msg);
+                }
+            },
+            error:function(res){
+                layer.alert(res.status);
+            }
+        })
+        return false;
+    });
+
+    form.on('submit(formParam)',function(data){
+        var c= data.field;
+        $.ajax({
+            url:"updateSendParam",
+            method:"post",
+            data:c,
+            dataType:"json",
+            success:function(res){
+                if(res.errorCode==="SUCCESS"){
+                    layer.alert("设置成功");
+                }else{
+                    layer.alert(res.msg);
+                }
+            },
+            error:function(res){
+                layer.alert(res.status);
+            }
+        })
+        return false;
+    })
+
+    $("#refresh").on('click',function(){
+        $.ajax({
+            url:"queryClientInfoByServer",
+            method:"post",
+            data:[],
+            dataType:"json",
+            success:function(res){
+                if(res.errorCode==="SUCCESS"){
+                    layer.alert("刷新成功");
+                    filllist(res.result);
+                }else{
+                    layer.alert(res.msg);
+                }
+            },
+            error:function(res){
+                layer.alert(res.status);
+            }
+        })
+    })
+
+    $("#devicedetail").on('click',function(){
+        queryDeviceDatile(table);
+    })
+
+    function filllist(result){
+        var obj = $("#clientList");
+        obj.html("");
+        var str ="";
+        $("#total").text("total:"+result.length);
+        var onlinenum =0;
+        var offlinenum =0;
+        for(var i=0;i<result.length;i++){
+            var address = result[i].address;
+            if(result[i].status==="online"){
+                onlinenum +=1;
+                str += "<div class='layui-card'><div class='layui-card-body' onclick='detail(\""+address+"\")'><div>"+address+"<span class='layui-badge layui-bg-orange'>"+result[i].status+"</span></div></div></div>";
+            }else{
+                offlinenum +=1;
+                str += "<div class='layui-card'><div class='layui-card-body' onclick='detail(\""+address+"\")'><div>"+address+"<span class='layui-badge layui-bg-gray'>"+result[i].status+"</span></div></div></div>";
+            }
+        }
+        obj.html(str);
+        $("#onlinenum").text("onlinenum:"+onlinenum);
+        $("#offlinenum").text("offlinenum:"+offlinenum);
+    }
+
+
+
+})
+
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link  rel="stylesheet" href="layui/css/layui.css">
+    <script type="text/javascript" src="layui/layui.js"></script>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <style>
+        .debuginfo{
+	        margin-top:20px;
+	        width:100%;
+	        height: 600px;
+	        border: 1px solid #eeeeee;
+	        overflow:auto;
+        }
+        .devicew{
+            margin-top:15px;
+        }
+        .client-list{
+	        margin-top:20px;
+	        width:100%;
+	        height: 700px;
+	        border: 1px solid #eeeeee;
+	        overflow:auto;
+        }
+    </style>
+</head>
+<body class="layui-bg-gray">
+<hr class="layui-bg-cyan">
+<div class="layui-row layui-col-space10">
+    <div class="layui-col-md3">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-btn layui-btn-primary layui-btn-fluid" >设置</div>
+            </div>
+        </div>
+        <div style="height:100%">
+            <div class="layui-card">
+                <div class="layui-card-header">创建客户端</div>
+                <div class="layui-card-body">
+
+
+                    <form class="layui-form" action="">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">主机IP:</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="host" required lay-verify="required" placeholder="请输入主机ip" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">服务端口：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="port" required lay-verify="required" placeholder="请输入端口" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">client数量：</label>
+                            <div class="layui-input-inline">
+                                <input type="number" name="clientNum" required lay-verify="required" placeholder="请输入创建客户端的数量" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formClient">立即提交</button>
+                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <!--<div class="layui-card">
+                <div class="layui-card-header">后台定时发送数据</div>
+                <div class="layui-card-body">
+                    <form class="layui-form" action="">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">发送数据内容：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="msg" required lay-verify="required" placeholder="请输入要发送的数据" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">时间间隔：</label>
+                            <div class="layui-input-inline">
+                                <input type="number" name="timeNum" required lay-verify="required" placeholder="请输入发送数据间隔" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="formParam">立即提交</button>
+                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                <button type="button" class="layui-btn layui-btn-primary" onclick="stopAllClock()">停止发送</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>-->
+
+            <div class="layui-card">
+                <div class="layui-card-header">清除缓存</div>
+                <div class="layui-card-body">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                        <button type="button" class="layui-btn layui-btn-danger" onclick="clearCache('client')">clear</button>
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">将清除socket链接 缓存等</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-col-md2">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <button class="layui-btn layui-btn-primary layui-btn-fluid" id="refresh">刷新</button>
+                <div class="client-list" id="clientList">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md7">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-btn layui-btn-primary layui-btn-fluid" id="socketStr">127.0.0.1</div>
+
+
+                    <div class="devicew">
+                        <div class="layui-input-inline">
+                            <input type="text" name="command" id="command" placeholder="请输入指令" required lay-verify="required" class="layui-input" style="width:300px;float: left;">
+                        </div>
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" onclick="devicedebuging()">发送</button>
+                            <button class="layui-btn" onclick="devicedebuging('start')">定时发送</button>
+                            <button class="layui-btn" onclick="devicedebuging('stop')">停止定时发送</button>
+                            <button class="layui-btn layui-btn-primary" onclick="clearlog()">清空日志</button>
+
+                        </div>
+
+                    </div>
+                    <div class="layui-input-inline devicew">
+                        <button class="layui-btn layui-btn-primary">发送次数<span class="layui-badge" id="sendNum">0</span></button>
+                        <button class="layui-btn layui-btn-primary">发送字节数量<span class="layui-badge " id="sendData">0</span></button>
+                        <button class="layui-btn layui-btn-primary">收到次数<span class="layui-badge " id="recNum">0</span></button>
+                        <button class="layui-btn layui-btn-primary">收到字节数量<span class="layui-badge " id="recData">0</span></button>
+                        <button class="layui-btn layui-btn-primary">收/发<span class="layui-badge " id="precentData">0</span></button>
+                    </div>
+                    <div name="debugfeed" id="feedinfo" class="debuginfo"  placeholder="设备调试反馈">
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript">
+layui.use(['form','element','layer'],function(){
+    var element = layui.element;
+    var form = layui.form;
+    var layer = layui.layer;
+
+    form.on('submit(formClient)', function(data){
+        var c= data.field;
+        $.ajax({
+            url:"createClient",
+            method:"post",
+            data:c,
+            dataType:"json",
+            success:function(data){
+                if(data.errorCode==="SUCCESS"){
+                    layer.alert("创建成功");
+                }else{
+                    layer.alert(data.msg);
+                }
+            },
+            error:function(res){
+                layer.alert(res.status);
+            }
+        })
+        return false;
+    });
+
+    form.on('submit(formParam)',function(data){
+        var c= data.field;
+        $.ajax({
+            url:"updateSendParam",
+            method:"post",
+            data:c,
+            dataType:"json",
+            success:function(res){
+                if(res.errorCode==="SUCCESS"){
+                    layer.alert("设置成功");
+                }else{
+                    layer.alert(res.msg);
+                }
+            },
+            error:function(res){
+                layer.alert(res.status);
+            }
+        })
+        return false;
+    })
+
+    $("#refresh").on('click',function(){
+        $.ajax({
+            url:"queryClientInfo",
+            method:"post",
+            data:[],
+            dataType:"json",
+            success:function(res){
+                if(res.errorCode==="SUCCESS"){
+                    layer.alert("刷新成功");
+                    filllist(res.result);
+                }else{
+                    layer.alert(res.msg);
+                }
+            },
+            error:function(res){
+                layer.alert(res.status);
+            }
+        })
+    })
+
+
+
+    function filllist(result){
+        var obj = $("#clientList");
+        obj.html("");
+        var str ="";
+        for(var i=0;i<result.length;i++){
+            var address = result[i].address;
+            if(result[i].status==="online"){
+
+                str += "<div class='layui-card'><div class='layui-card-body' onclick='detail(\""+address+"\")'><div>"+address+"<span class='layui-badge layui-bg-orange'>"+result[i].status+"</span></div></div></div>";
+            }else{
+
+                str += "<div class='layui-card'><div class='layui-card-body' onclick='detail(\""+address+"\")'><div>"+address+"<span class='layui-badge layui-bg-gray'>"+result[i].status+"</span></div></div></div>";
+            }
+        }
+        obj.html(str);
+    }
+
+
+
+})
+
+</script>
+</body>
+</html>
